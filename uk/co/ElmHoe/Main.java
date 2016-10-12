@@ -251,4 +251,11 @@ public class Main extends JFrame{
 			return true;
 		}
 	}
+	
+	public static void API(){
+		boolean isItLoaded = true;
+		if (filesToPlay.isEmpty()){
+			isItLoaded = false;
+		}
+	}
 }
