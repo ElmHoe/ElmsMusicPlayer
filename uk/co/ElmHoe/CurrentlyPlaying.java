@@ -11,6 +11,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import javafx.scene.control.Slider;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -24,7 +27,6 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
@@ -38,12 +40,34 @@ public class CurrentlyPlaying extends JFrame{
 	private static final long serialVersionUID = 1L;
 	public static JTextPane textPane = new JTextPane();
 	public static JTextPane textPane_2 = new JTextPane();
-	public static Container contentPane = null;
+	public Container contentPane = getContentPane();
+	public static JSlider slider1 = null;
+	public static Slider slider2 = null;
+	public static ImageIcon noArtwork = null;
+	public static ImageIcon buttonBack;
+	public static ImageIcon buttonSkip;
+	public static ImageIcon buttonPlay;
+	public static ImageIcon buttonPause;
+	public static ImageIcon bgIcon;
 	
-
 	
 	public CurrentlyPlaying(){
-		contentPane = getContentPane();
+
+ 
+		if (LoadingIcons.loaded == true){
+			noArtwork = LoadingIcons.noArtwork;
+			buttonBack = LoadingIcons.buttonBack;
+			buttonSkip = LoadingIcons.buttonSkip;
+			buttonPlay = LoadingIcons.buttonPlay;
+			buttonPause = LoadingIcons.buttonPause;
+			bgIcon = LoadingIcons.bgIcon;
+			
+			JLabel background;
+			background = new JLabel(bgIcon);
+			contentPane = background;
+		}else{
+			System.out.println("ERROR, Failed to load icons for images... Has the code been tampered with?!");
+		}
 		this.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 380, 700);
@@ -53,25 +77,12 @@ public class CurrentlyPlaying extends JFrame{
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
-		
-		ImageIcon imageIcon = new ImageIcon(Main.class.getResource("/resources/noArtwork.png")); // load the image to a imageIcon
-		Image image = imageIcon.getImage(); // transform it 
-		Image newimg = image.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-		imageIcon = new ImageIcon(newimg);  // transform it back
-		
-		ImageIcon bgIcon = new ImageIcon(Main.class.getResource("/resources/bg.jpg")); // load the image to a imageIcon
-		Image bgImage = bgIcon.getImage(); // transform it 
-		Image bgImg = bgImage.getScaledInstance(380, 700,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-		bgIcon = new ImageIcon(bgImg);  // transform it back
-		JLabel background;
-		background = new JLabel(bgIcon);
-		this.setContentPane(background);
 
 		
 		JLabel lable1 = new JLabel("");
-		lable1.setIcon(imageIcon);
+		lable1.setIcon(noArtwork);
 		lable1.setBounds(60, 79, 250, 250);
-		this.getContentPane().add(lable1);
+		contentPane.add(lable1);
 
 		
 		textPane.setEditable(false);
@@ -85,7 +96,7 @@ public class CurrentlyPlaying extends JFrame{
 		try {
 			SFBOLD = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFBOLD.ttf")).deriveFont(16f);
 			SFTHIN = Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFTHIN.ttf")).deriveFont(12f);
-			SFREG = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFTHIN.ttf")).deriveFont(12f);
+			SFREG = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFREG.ttf")).deriveFont(12f);
 			
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFBOLD.ttf")));
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFTHIN.ttf")));
@@ -96,6 +107,7 @@ public class CurrentlyPlaying extends JFrame{
 		}
 
 		textPane.setFont(SFBOLD);
+		
         Font font = new Font("Courier", Font.ITALIC,14);
 		textPane_2.setOpaque(false);
 		textPane_2.setFont(font);
@@ -104,68 +116,83 @@ public class CurrentlyPlaying extends JFrame{
 		textPane_2.setEditable(false);
 		textPane_2.setBackground(SystemColor.inactiveCaption);
 		textPane_2.setForeground(new Color(0, 191, 255));
+		textPane.setForeground(new Color(0, 191, 255));
 
-		getContentPane().add(textPane);
-		getContentPane().add(textPane_2);
+		contentPane.add(textPane);
+		contentPane.add(textPane_2);
+
+		JButton button_Back = new JButton();
+		button_Back.setIcon(buttonBack);
+		button_Back.setContentAreaFilled(false);
+		button_Back.setBorderPainted(false);
+		button_Back.setIcon(buttonBack);
+		button_Back.setBounds(40, 400, 86, 68);
+		contentPane.add(button_Back);
+
+		JButton button_Play = new JButton();
+		button_Play.setIcon(buttonPlay);
+		button_Play.setContentAreaFilled(false);
+		button_Play.setBorderPainted(false);
+		button_Play.setBounds(145, 400, 86, 68);
+		contentPane.add(button_Play);
+
+		JButton button_Pause = new JButton();
+		button_Pause.setIcon(buttonPause);
+		button_Pause.setContentAreaFilled(false);
+		button_Pause.setBorderPainted(false);
+		button_Pause.setBounds(145, 400, 86, 68);
+		contentPane.add(button_Pause);
+
+		JButton button_Skip = new JButton();
+		button_Skip.setIcon(buttonSkip);
+		button_Skip.setContentAreaFilled(false);
+		button_Skip.setBorderPainted(false);
+		button_Skip.setBounds(248, 400, 86, 68);
+		contentPane.add(button_Skip);
+
 
 		
-		JButton btnTimePlayed = new JButton("Time Played - Time Left");
-		btnTimePlayed.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		btnTimePlayed.setBounds(10, 357, 354, 23);
-		getContentPane().add(btnTimePlayed);
 		
-		JButton button_1 = new JButton("Back");
-		button_1.setBounds(10, 427, 86, 36);
-		getContentPane().add(button_1);
-		button_1.addActionListener(new ActionListener(){
+        JSlider slider = new JSlider(0, 100, 50);
+        slider1 = new JSlider(0, 100, 50);
+
+		
+		button_Back.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				Main.goBack();
 			}
 		});
+		button_Play.setVisible(false);
+
 		
-		JButton button_play = new JButton("Play");
-		button_play.setVisible(true);
-		
-		JButton button_2 = new JButton("Pause");
-		button_2.addActionListener(new ActionListener() {
+		button_Pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				button_2.setVisible(false);
-				button_play.setVisible(true);
+				button_Pause.setVisible(false);
+				button_Play.setVisible(true);
 				Main.playAndPause();
 			}
 		});
-		button_2.setBounds(145, 411, 86, 68);
-		getContentPane().add(button_2);
 		
-		button_play.addActionListener(new ActionListener() {
+		button_Play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				button_2.setVisible(true);
-				button_play.setVisible(false);
+				button_Pause.setVisible(true);
+				button_Play.setVisible(false);
 				Main.playAndPause();
 
 			}
 		});
-		button_play.setBounds(145, 411, 86, 68);
-		getContentPane().add(button_play);
 
 		
-		JButton button_3 = new JButton("Skip");
-		button_3.addActionListener(new ActionListener() {
+		button_Skip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Main.skip();
-				if (button_2.isVisible() == false){
-					button_2.setVisible(true);
-					button_play.setVisible(false);
+				if (button_Pause.isVisible() == false){
+					button_Pause.setVisible(true);
+					button_Play.setVisible(false);
 				}
 			}
 		});
-		button_3.setBounds(278, 427, 86, 36);
-		getContentPane().add(button_3);
 		
-        JSlider slider = new JSlider(0, 100, 50);
         UIDefaults sliderDefaults = new UIDefaults();
         sliderDefaults.put("Slider.thumbWidth", 20);
         sliderDefaults.put("Slider.thumbHeight", 20);
@@ -195,16 +222,47 @@ public class CurrentlyPlaying extends JFrame{
         slider.setBounds(10, 490, 354, 23);
         slider.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent event) {
-            	if (Main.Playing == true){
-            		int newVolume = slider.getValue();
-            		System.out.println("volume updated to " + newVolume);
-            		Main.vol(newVolume);
-            	}else{
-            		slider.setValue(50);
-            	}
+        		int newVolume = slider.getValue();
+        		System.out.println("volume updated to " + newVolume);
+        		Main.vol(newVolume);
+        		Main.vol(newVolume);
+        	
             }
         	
         });
-		getContentPane().add(slider);
+		contentPane.add(slider);
+		
+        UIDefaults sliderForTime = new UIDefaults();
+        sliderForTime.put("Slider.thumbWidth", 20);
+        sliderForTime.put("Slider.thumbHeight", 20);
+        slider1.putClientProperty("Nimbus.Overrides",sliderForTime);
+        slider1.putClientProperty("Nimbus.Overrides.InheritDefaults",false);
+
+        sliderForTime.put("Slider:SliderThumb.backgroundPainter", new Painter<JComponent>() {
+            public void paint(Graphics2D g, JComponent c, int w, int h) {
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setStroke(new BasicStroke(2f));
+                g.setColor(Color.RED);
+                g.fillOval(1, 1, w-3, h-3);
+                g.setColor(Color.WHITE);
+                g.drawOval(1, 1, w-3, h-3);
+            }
+        });
+        sliderForTime.put("Slider:SliderTrack.backgroundPainter", new Painter<JComponent>() {
+            public void paint(Graphics2D g, JComponent c, int w, int h) {
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setStroke(new BasicStroke(2f));
+                g.setColor(Color.GRAY);
+                g.fillRoundRect(0, 6, w-1, 8, 8, 8);
+                g.setColor(Color.WHITE);
+                g.drawRoundRect(0, 6, w-1, 8, 8, 8);
+            }
+        });	
+        slider1.setBounds(10, 357, 354, 23);
+        //slider1.addChangeListener();
+        contentPane.add(slider1);
+        
+        this.setContentPane(contentPane);
 	}
+        
 }

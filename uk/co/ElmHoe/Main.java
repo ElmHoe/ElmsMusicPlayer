@@ -16,6 +16,7 @@ import com.mpatric.mp3agic.UnsupportedTagException;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 public class Main extends JFrame{
 
@@ -32,22 +33,21 @@ public class Main extends JFrame{
 	public static boolean firstText = true;
 	public static CurrentlyPlaying window = null;
 	private static Double playCount = 0.0;
-	private static float vol = (float) 0.50;
-	private static int playNum = 0;
+	public static float vol = (float) 0.50;
+	public static int playNum = 0;
 	private static String oldTitle = null;
+	public static String title = "";
+	
 	public static void main(String[] args) {
 		System.out.println("Enter directory to load all mp3 files from, or press return to use current directory.");
 		dir = s.nextLine();
-		
-		if (dir.equals(null)){
-			dir = System.getProperty("user.dir");
-		}
-		if (!(dir.endsWith("\\"))){
-			dir = dir + "\\";
-		}
+		if (dir.equals(null)){ dir = System.getProperty("user.dir"); }
+		if (!(dir.endsWith("\\"))){  dir = dir + "\\"; }
+		LoadingIcons.loadIcons();
 		new Main();
-
 	}
+	
+	
 	
 	public Main(){
 	
@@ -97,7 +97,7 @@ public class Main extends JFrame{
 		    }
 	}
 	
-	static MediaPlayer mediaPlayer;
+	public static MediaPlayer mediaPlayer;
 	
 	
 	public static void play(File file){
@@ -106,6 +106,7 @@ public class Main extends JFrame{
 		Media hit = new Media(format.toString());
 		mediaPlayer = new MediaPlayer(hit);
 		mediaPlayer.play();
+		mediaPlayer.setVolume(vol);
 		nextVol(vol);
 		
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
@@ -113,19 +114,19 @@ public class Main extends JFrame{
 		    public void run() {
 				pastSongs.put(playCount, bip);
 				playCount = playCount + 1;
-				
 				mediaPlayer.stop();
+				Playing = false;
+				CurrentlyPlaying.slider1.setValue(0);
 		    	generatePlayList();
-				nextVol(vol);
+		    	Main.updateSongList();
 		    }
 		});
 
 	}
 	public static boolean vol(int volume){
+		vol = (float)volume / 100;
 		if (Playing == true){
-			
-			vol = (float)volume / 100;
-			System.out.println(vol);
+			System.out.println("Volume level has been set to: " + (vol * 100));
 			mediaPlayer.setVolume(vol);
 			return true;
 		}else{
@@ -134,7 +135,6 @@ public class Main extends JFrame{
 	}
 	public static void nextVol(float volume){
 		if (Playing == true){
-			System.out.println(vol);
 			mediaPlayer.setVolume(vol);
 		}
 	}
@@ -144,7 +144,6 @@ public class Main extends JFrame{
 			Playing = false;
 		}else{
 			mediaPlayer.play();
-			
 			Playing = true;
 
 		}
@@ -161,26 +160,33 @@ public class Main extends JFrame{
 		//mediaPlayer.stop();
 	}
 	
-	public void updateDuration(){
-		if (Playing == true){
-			//Duration totalDuration = mediaPlayer.getTotalDuration();
-			mediaPlayer.getCycleDuration();
+	public static void updateDuration(){
+		while (Playing == true){
+			Duration playingLength = mediaPlayer.getCycleDuration();
+			Duration playingTotal = mediaPlayer.getTotalDuration();
+			System.out.println(""+playingLength.toSeconds() + playingTotal.toSeconds());
+			Duration updateAmount = mediaPlayer.getBufferProgressTime();
+			CurrentlyPlaying.slider1.setValue(Integer.parseInt(updateAmount.toString()));
+			System.out.println(updateAmount);
+			if (playingLength == playingTotal){
+				break;
+			}
 		}
 	}
 	
 	public static void updateTitle(File file, int playNum, boolean back) throws UnsupportedTagException, InvalidDataException, IOException{
 		Mp3File song = new Mp3File(filesToPlay.get(playNum));
-		String title = filesAndNames.get(song.getFilename()).toString();
+		title = filesAndNames.get(song.getFilename()).toString();
 		oldTitle = filesAndNames.get(song.getFilename()).toString();
-		showSongsInList(file, playNum);
+		showSongsInList();
 		System.out.println(oldTitle);
 		System.out.println("Next Song : " + title);
 		CurrentlyPlaying.textPane.setText(title.replaceAll(" - ", "\n"));
 		window.setTitle("ElmMusic: " + title);
 		pastSongs.put(playCount, filesToPlay.get(0));
 		playCount = playCount + 1;
-
 	}
+	
 	public static void generatePlayList(){
 		if (filesToPlay.isEmpty()){
 			try {
@@ -192,9 +198,7 @@ public class Main extends JFrame{
 		nextVol(vol);
 
 		try {
-			System.out.println(filesToPlay.get(playNum));
 			updateTitle(new File(filesToPlay.get(playNum)), playNum, false);
-
 			filesToPlay.remove(playNum);
 
 		} catch (UnsupportedTagException | InvalidDataException | IOException e) {
@@ -218,8 +222,16 @@ public class Main extends JFrame{
 			filesToPlay.remove(0);
 		}
 	}
-	
-	public static ArrayList<String> showSongsInList(File file, int playNum) throws UnsupportedTagException, InvalidDataException, IOException{
+	public static void updateSongList(){
+		try{
+			CurrentlyPlaying.textPane_2.setText("");
+			showSongsInList();
+		}catch(Exception e){
+			System.out.println("Unable to update song list. Error being thrown: " + "\n" + e.getMessage());
+		}
+		
+	}
+	public static ArrayList<String> showSongsInList() throws UnsupportedTagException, InvalidDataException, IOException{
 
 		for (int i = 0 ; i < filesToPlay.size() ;  i++){
 			if (filesToPlay.size() == 0){
