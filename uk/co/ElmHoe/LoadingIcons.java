@@ -1,6 +1,7 @@
 package uk.co.ElmHoe;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
@@ -60,5 +61,20 @@ public class LoadingIcons {
 				return loaded;
 			}
 		}
+	}
+	
+	public static void updateIcons(boolean artwork, BufferedImage img){
+		if (artwork == true){
+			Image newimg = img.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH);
+			noArtwork = new ImageIcon(newimg); 
+
+		}else{
+			noArtwork = new ImageIcon(Main.class.getResource("/resources/noArtwork.png"));
+			Image image = noArtwork.getImage(); 
+			Image newimg = image.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH);
+			noArtwork = new ImageIcon(newimg); 
+
+		}
+		CurrentlyPlaying.lable1.setIcon(noArtwork);
 	}
 }

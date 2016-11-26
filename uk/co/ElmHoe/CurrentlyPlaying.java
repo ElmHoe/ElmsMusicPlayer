@@ -12,6 +12,9 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.UnsupportedTagException;
+
 import javafx.scene.control.Slider;
 
 import javax.swing.ImageIcon;
@@ -49,6 +52,7 @@ public class CurrentlyPlaying extends JFrame{
 	public static ImageIcon buttonPlay;
 	public static ImageIcon buttonPause;
 	public static ImageIcon bgIcon;
+	public static JLabel lable1;
 	
 	
 	public CurrentlyPlaying(){
@@ -71,6 +75,7 @@ public class CurrentlyPlaying extends JFrame{
 		this.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 380, 700);
+		this.setResizable(false);
 		textPane.setOpaque(false);
 
 		StyledDocument doc = textPane.getStyledDocument();
@@ -79,7 +84,7 @@ public class CurrentlyPlaying extends JFrame{
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
 		
-		JLabel lable1 = new JLabel("");
+		lable1 = new JLabel("");
 		lable1.setIcon(noArtwork);
 		lable1.setBounds(60, 79, 250, 250);
 		contentPane.add(lable1);
@@ -102,7 +107,6 @@ public class CurrentlyPlaying extends JFrame{
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFTHIN.ttf")));
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFREG.ttf")));
 		} catch (FontFormatException | IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -159,7 +163,7 @@ public class CurrentlyPlaying extends JFrame{
 		
 		button_Back.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
-				Main.goBack();
+				//Main.goBack();
 			}
 		});
 		button_Play.setVisible(false);
@@ -167,25 +171,41 @@ public class CurrentlyPlaying extends JFrame{
 		
 		button_Pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				button_Pause.setVisible(false);
-				button_Play.setVisible(true);
-				Main.playAndPause();
+				if (API.isPlayerPlaying() == true){
+					button_Pause.setVisible(false);
+					button_Play.setVisible(true);
+					Main.playAndPause();
+				}else{
+					button_Pause.setVisible(true);
+					button_Play.setVisible(false);
+
+				}
 			}
 		});
 		
 		button_Play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				button_Pause.setVisible(true);
-				button_Play.setVisible(false);
-				Main.playAndPause();
+				if (API.isPlayerPlaying() == false){
+					button_Pause.setVisible(true);
+					button_Play.setVisible(false);
+					Main.playAndPause();
+				}else{
+					button_Pause.setVisible(false);
+					button_Play.setVisible(true);
 
+				}
 			}
 		});
 
 		
 		button_Skip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Main.skip();
+				try {
+					Main.skip();
+				} catch (UnsupportedTagException | InvalidDataException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				if (button_Pause.isVisible() == false){
 					button_Pause.setVisible(true);
 					button_Play.setVisible(false);
@@ -223,8 +243,7 @@ public class CurrentlyPlaying extends JFrame{
         slider.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent event) {
         		int newVolume = slider.getValue();
-        		System.out.println("volume updated to " + newVolume);
-        		Main.vol(newVolume);
+        		System.out.println("Volume updated to " + newVolume);
         		Main.vol(newVolume);
         	
             }
@@ -232,33 +251,7 @@ public class CurrentlyPlaying extends JFrame{
         });
 		contentPane.add(slider);
 		
-        UIDefaults sliderForTime = new UIDefaults();
-        sliderForTime.put("Slider.thumbWidth", 20);
-        sliderForTime.put("Slider.thumbHeight", 20);
-        slider1.putClientProperty("Nimbus.Overrides",sliderForTime);
-        slider1.putClientProperty("Nimbus.Overrides.InheritDefaults",false);
-
-        sliderForTime.put("Slider:SliderThumb.backgroundPainter", new Painter<JComponent>() {
-            public void paint(Graphics2D g, JComponent c, int w, int h) {
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g.setStroke(new BasicStroke(2f));
-                g.setColor(Color.RED);
-                g.fillOval(1, 1, w-3, h-3);
-                g.setColor(Color.WHITE);
-                g.drawOval(1, 1, w-3, h-3);
-            }
-        });
-        sliderForTime.put("Slider:SliderTrack.backgroundPainter", new Painter<JComponent>() {
-            public void paint(Graphics2D g, JComponent c, int w, int h) {
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g.setStroke(new BasicStroke(2f));
-                g.setColor(Color.GRAY);
-                g.fillRoundRect(0, 6, w-1, 8, 8, 8);
-                g.setColor(Color.WHITE);
-                g.drawRoundRect(0, 6, w-1, 8, 8, 8);
-            }
-        });	
-        slider1.setBounds(10, 357, 354, 23);
+        
         //slider1.addChangeListener();
         contentPane.add(slider1);
         

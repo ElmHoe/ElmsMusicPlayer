@@ -5,7 +5,7 @@ import java.io.File;
 import javafx.scene.media.MediaPlayer;
 
 public class API {
-	
+	public static boolean databaseConnected = false;
 	public static String CurrentSong(){
 		if (isPlayerPlaying() == true){
 			String title = Main.title;

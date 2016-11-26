@@ -29,7 +29,6 @@ public class Main extends JFrame{
 	static boolean firstTime = true;
 	static boolean toolkit = false;
 	private static final long serialVersionUID = 1L;
-	public static boolean Playing = true;
 	public static boolean firstText = true;
 	public static CurrentlyPlaying window = null;
 	private static Double playCount = 0.0;
@@ -37,14 +36,39 @@ public class Main extends JFrame{
 	public static int playNum = 0;
 	private static String oldTitle = null;
 	public static String title = "";
+	private static String bip = "";
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		System.out.println("Enter directory to load all mp3 files from, or press return to use current directory.");
 		dir = s.nextLine();
-		if (dir.equals(null)){ dir = System.getProperty("user.dir"); }
+		if (dir.equals("")){ dir = "A:\\Music\\ALL Songs"; }
+		if (dir.equals("this")){ dir = System.getProperty("user.dir");}
 		if (!(dir.endsWith("\\"))){  dir = dir + "\\"; }
+		
 		LoadingIcons.loadIcons();
+		
+		/*
+		 *     THIS SECTION LOADS DISCORD API. GET READY LADS
+		 *     
+		 */
+		
+		Logging.startLog();
+		Connection.connect();
+		ExtraEvents.mysql();
+
+		
+		/*
+		 * 
+		 * 		END OFF DISCORD SECTION
+		 * 
+		 */
+		
+		
+		
 		new Main();
+		
+		KeyListener.main(args);
+
 	}
 	
 	
@@ -54,18 +78,20 @@ public class Main extends JFrame{
 		/*
 		 * TO DO LIST
 		 * 
-		 * 
-		 * 
-		 * 
-		 * PAUSE Button, needs updating to an image of Pause as well as does the Play Button.
+		 * CHANGE + IMPLEMENT FIRST TIME LISTENERS AND SETUP LOADING ALL SONGS.
 		 * 
 		 * Time Played and Time Left needs implementing.
 		 * 
 		 * Back is broken as fuck.
-		 * 
-		 * Skip and back need images.
-		 * 
+		 * 		 
 		 * new Application image logo?
+		 * 
+		 * add image updating for the player its self. 
+		 * 
+		 * create standalone version without any discord support.
+		 * 
+		 * DISABLE ALL DISCORD SUPPORT - SWITCH OVER TO STANDALONE VERSION
+		 *
 		 */
 		window = new CurrentlyPlaying();
 		
@@ -101,32 +127,47 @@ public class Main extends JFrame{
 	
 	
 	public static void play(File file){
-		String bip = file.getAbsolutePath();
+		bip = file.getAbsolutePath();
 		URI format = new File(bip).toURI();
 		Media hit = new Media(format.toString());
 		mediaPlayer = new MediaPlayer(hit);
 		mediaPlayer.play();
 		mediaPlayer.setVolume(vol);
-		nextVol(vol);
 		
+		nextVol(vol);
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
 		    @Override
 		    public void run() {
-				pastSongs.put(playCount, bip);
-				playCount = playCount + 1;
-				mediaPlayer.stop();
-				Playing = false;
-				CurrentlyPlaying.slider1.setValue(0);
-		    	generatePlayList();
-		    	Main.updateSongList();
+				try {
+					atEndOrSkip(bip);
+				} catch (UnsupportedTagException | InvalidDataException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		    }
 		});
 
 	}
+	
+
+	public static void atEndOrSkip(String bip) throws UnsupportedTagException, InvalidDataException, IOException{
+		
+		pastSongs.put(playCount, bip);
+		playCount = playCount + 1;
+		mediaPlayer.stop();
+		CurrentlyPlaying.slider1.setValue(0);
+    	generatePlayList();
+    	Main.updateSongList();
+    	try{
+    		ExtraEvents.pullImageArtwork(new File(bip));
+    	}catch(Exception e){
+    		System.out.println("Failed to update image icon." + "\n" + e.getMessage());
+    	}
+	}
+
 	public static boolean vol(int volume){
 		vol = (float)volume / 100;
-		if (Playing == true){
-			System.out.println("Volume level has been set to: " + (vol * 100));
+		if (API.isPlayerPlaying() == true){
 			mediaPlayer.setVolume(vol);
 			return true;
 		}else{
@@ -134,34 +175,36 @@ public class Main extends JFrame{
 		}
 	}
 	public static void nextVol(float volume){
-		if (Playing == true){
+		if (API.isPlayerPlaying() == true){
 			mediaPlayer.setVolume(vol);
 		}
 	}
 	public static void playAndPause(){
-		if (Playing == true){
+		boolean check = API.isPlayerPlaying();
+		
+		if (check == true){
 			mediaPlayer.pause();
-			Playing = false;
+			System.out.println("PLAYER WAS " + check + ", now paused.");
 		}else{
 			mediaPlayer.play();
-			Playing = true;
-
+			System.out.println("PLAYER WAS " + check + ", now playing.");
 		}
 	}
-	public static void skip(){
-		pastSongs.put(playCount, filesToPlay.get(playNum));
-		playCount = playCount + 1;
-		Playing = true;
-		mediaPlayer.stop();
-		generatePlayList();
-	}
+	
+	public static void skip() throws UnsupportedTagException, InvalidDataException, IOException{
+		atEndOrSkip(bip);
+    }
 	
 	public static void goBack(){
-		//mediaPlayer.stop();
+		mediaPlayer.stop();
+		System.out.print(pastSongs.keySet());
+		play(new File(pastSongs.get(playCount)));
+		playCount = playCount - 1;
+		
 	}
 	
 	public static void updateDuration(){
-		while (Playing == true){
+		while (API.isPlayerPlaying() == true){
 			Duration playingLength = mediaPlayer.getCycleDuration();
 			Duration playingTotal = mediaPlayer.getTotalDuration();
 			System.out.println(""+playingLength.toSeconds() + playingTotal.toSeconds());
@@ -179,9 +222,14 @@ public class Main extends JFrame{
 		title = filesAndNames.get(song.getFilename()).toString();
 		oldTitle = filesAndNames.get(song.getFilename()).toString();
 		showSongsInList();
-		System.out.println(oldTitle);
-		System.out.println("Next Song : " + title);
+		System.out.println("Next Song : " + title); 
 		CurrentlyPlaying.textPane.setText(title.replaceAll(" - ", "\n"));
+		//BELOW IS DISCORD STUFF IN CASE OF BREAK
+		
+		Connection.api.setGame(title.replaceAll(" - ", "\n"));
+		//RegisterChatEvents.newSong(title);
+
+		// END OF DISCORD
 		window.setTitle("ElmMusic: " + title);
 		pastSongs.put(playCount, filesToPlay.get(0));
 		playCount = playCount + 1;
@@ -199,10 +247,15 @@ public class Main extends JFrame{
 
 		try {
 			updateTitle(new File(filesToPlay.get(playNum)), playNum, false);
-			filesToPlay.remove(playNum);
-
+			ExtraEvents.pullImageArtwork(new File(filesToPlay.get(playNum)));
+			
 		} catch (UnsupportedTagException | InvalidDataException | IOException e) {
 			e.printStackTrace();
+		}
+		try{
+			filesToPlay.remove(playNum);
+		}catch(Exception e){
+			
 		}
 	}
 	
@@ -264,10 +317,5 @@ public class Main extends JFrame{
 		}
 	}
 	
-	public static void API(){
-		boolean isItLoaded = true;
-		if (filesToPlay.isEmpty()){
-			isItLoaded = false;
-		}
-	}
+
 }
