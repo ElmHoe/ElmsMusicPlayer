@@ -39,8 +39,8 @@ public class Logging {
 			
 		}else{
 			ExtraEvents.logMessagesToDatabase(user, message);
-			writer.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
-			System.out.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
+			//writer.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
+			//System.out.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
 			save();
 		}
 	}

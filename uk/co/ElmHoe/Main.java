@@ -25,18 +25,21 @@ public class Main extends JFrame{
 	static String dir = null;
 	static ArrayList<String> filesToPlay =  new ArrayList<String>();
 	static HashMap<String,String> filesAndNames =  new HashMap<String,String>();
-	static HashMap<Double,String> pastSongs =  new HashMap<Double,String>();
+	static ArrayList<String> pastSongs =  new ArrayList<String>();
 	static boolean firstTime = true;
 	static boolean toolkit = false;
 	private static final long serialVersionUID = 1L;
 	public static boolean firstText = true;
 	public static CurrentlyPlaying window = null;
-	private static Double playCount = 0.0;
 	public static float vol = (float) 0.50;
 	public static int playNum = 0;
 	private static String oldTitle = null;
 	public static String title = "";
-	private static String bip = "";
+	private static String forBack = "";
+	private static String SongAPI = null;
+	
+	
+	private static boolean debugging = true;
 	
 	public static void main(String[] args) throws IOException {
 		System.out.println("Enter directory to load all mp3 files from, or press return to use current directory.");
@@ -52,14 +55,15 @@ public class Main extends JFrame{
 		 *     
 		 */
 		
-		Logging.startLog();
-		Connection.connect();
-		ExtraEvents.mysql();
+		//Logging.startLog();
+		//Connection.connect();
+		//ExtraEvents.mysql();
 
 		
 		/*
 		 * 
 		 * 		END OFF DISCORD SECTION
+		 * 
 		 * 
 		 */
 		
@@ -92,6 +96,7 @@ public class Main extends JFrame{
 		 * 
 		 * DISABLE ALL DISCORD SUPPORT - SWITCH OVER TO STANDALONE VERSION
 		 *
+		 * REWRITING UP NEXT + GO BACK 
 		 */
 		window = new CurrentlyPlaying();
 		
@@ -99,6 +104,9 @@ public class Main extends JFrame{
 			checkDir(dir);
 			showLoadedSongs();
 			vol(50);
+			if (debugging == true){
+				System.out.println("Stage 1 \n Checking and loading songs complete.");
+			}
 		} catch (IOException | UnsupportedTagException | InvalidDataException e2) {
 			e2.printStackTrace();
 		}
@@ -121,45 +129,66 @@ public class Main extends JFrame{
 		        System.out.println("Directory " + listOfFiles[i].getName());
 		      }
 		    }
+		    
+		    if (debugging == true){
+				System.out.println("Loaded songs stage. Songs loaded have been pasted.");
+			}
 	}
 	
 	public static MediaPlayer mediaPlayer;
 	
 	
 	public static void play(File file){
-		bip = file.getAbsolutePath();
-		URI format = new File(bip).toURI();
+		
+		//This gets the file path of the mp3 file.
+		String filePath = file.getAbsolutePath();
+		URI format = new File(filePath).toURI();
 		Media hit = new Media(format.toString());
+		SongAPI = filePath;
+		if (debugging == true){
+			System.out.println("Grabbing song URL done");
+		}
+		//Media Player section to load and begin playing.
+		
 		mediaPlayer = new MediaPlayer(hit);
 		mediaPlayer.play();
 		mediaPlayer.setVolume(vol);
-		
-		nextVol(vol);
+		if (debugging == true){
+			System.out.println("Media Player has been set to play.");
+		}
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
 		    @Override
 		    public void run() {
-				try {
-					atEndOrSkip(bip);
-				} catch (UnsupportedTagException | InvalidDataException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				atTheEndOfMedia(filePath);
 		    }
 		});
 
 	}
 	
-
-	public static void atEndOrSkip(String bip) throws UnsupportedTagException, InvalidDataException, IOException{
+	
+	public static boolean atTheEndOfMedia(String oldFilePath){
+		try{
+			pastSongs.add(oldFilePath);
+			mediaPlayer.stop();
+			if (debugging == true){
+				System.out.println("Media Player has been stopped as of EndOfMedia");
+			}
+			return true;
+		}catch(Exception e){
+			
+			
+			return false;
+		}		
+	}
+	public static void atEndOrSkip(String oldFilePath) throws UnsupportedTagException, InvalidDataException, IOException{
 		
-		pastSongs.put(playCount, bip);
-		playCount = playCount + 1;
+		pastSongs.add(oldFilePath);
 		mediaPlayer.stop();
-		CurrentlyPlaying.slider1.setValue(0);
+		//CurrentlyPlaying.slider1.setValue(0);
     	generatePlayList();
     	Main.updateSongList();
     	try{
-    		ExtraEvents.pullImageArtwork(new File(bip));
+    		ExtraEvents.pullImageArtwork(new File(oldFilePath));
     	}catch(Exception e){
     		System.out.println("Failed to update image icon." + "\n" + e.getMessage());
     	}
@@ -192,27 +221,26 @@ public class Main extends JFrame{
 	}
 	
 	public static void skip() throws UnsupportedTagException, InvalidDataException, IOException{
-		atEndOrSkip(bip);
+		atEndOrSkip(SongAPI);
     }
 	
 	public static void goBack(){
-		mediaPlayer.stop();
-		System.out.print(pastSongs.keySet());
-		play(new File(pastSongs.get(playCount)));
-		playCount = playCount - 1;
-		
-	}
-	
-	public static void updateDuration(){
-		while (API.isPlayerPlaying() == true){
-			Duration playingLength = mediaPlayer.getCycleDuration();
-			Duration playingTotal = mediaPlayer.getTotalDuration();
-			System.out.println(""+playingLength.toSeconds() + playingTotal.toSeconds());
-			Duration updateAmount = mediaPlayer.getBufferProgressTime();
-			CurrentlyPlaying.slider1.setValue(Integer.parseInt(updateAmount.toString()));
-			System.out.println(updateAmount);
-			if (playingLength == playingTotal){
-				break;
+		if (pastSongs.isEmpty()){
+			try{
+				System.out.println("Nothing to go back too...");
+			}catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+		}else{
+			
+
+			try{
+				filesToPlay.add(forBack);
+				mediaPlayer.stop();
+				play(new File(pastSongs.get(pastSongs.size() - 1)));		
+				updateTitle(new File(pastSongs.get(pastSongs.size()-1)), playNum, true);
+			}catch(Exception e){
+				System.out.println(e.getMessage());
 			}
 		}
 	}
@@ -224,56 +252,46 @@ public class Main extends JFrame{
 		showSongsInList();
 		System.out.println("Next Song : " + title); 
 		CurrentlyPlaying.textPane.setText(title.replaceAll(" - ", "\n"));
-		//BELOW IS DISCORD STUFF IN CASE OF BREAK
-		
-		Connection.api.setGame(title.replaceAll(" - ", "\n"));
-		//RegisterChatEvents.newSong(title);
-
-		// END OF DISCORD
 		window.setTitle("ElmMusic: " + title);
-		pastSongs.put(playCount, filesToPlay.get(0));
-		playCount = playCount + 1;
 	}
 	
 	public static void generatePlayList(){
 		if (filesToPlay.isEmpty()){
-			try {
-				checkDir(dir);
-			} catch (IOException e) {
-			}
+			try { checkDir(dir); } catch (IOException e) {}
 		}
-		play(new File(filesToPlay.get(playNum)));
+		
+		removeCurrentSong(playNum ,false);
 		nextVol(vol);
 
 		try {
 			updateTitle(new File(filesToPlay.get(playNum)), playNum, false);
 			ExtraEvents.pullImageArtwork(new File(filesToPlay.get(playNum)));
 			
-		} catch (UnsupportedTagException | InvalidDataException | IOException e) {
-			e.printStackTrace();
-		}
-		try{
-			filesToPlay.remove(playNum);
-		}catch(Exception e){
-			
-		}
+		} catch (UnsupportedTagException | InvalidDataException | IOException e) { e.printStackTrace(); }
 	}
 	
 	public static void playFirst() throws UnsupportedTagException, InvalidDataException, IOException{
 		if (firstTime == true){
 			Collections.shuffle(filesToPlay);
 			JavaFXInitializer.initToolKit();
+			updateTitle(new File(filesToPlay.get(0)), 0, false);			
+			removeCurrentSong(0, false);
 			firstTime = false;
-			if (playCount == null){
-				playCount = 0.0;
-			}
-			playCount = playCount + 1;
-			play(new File(filesToPlay.get(0)));
-			updateTitle(new File(filesToPlay.get(0)), 0, false);
-			pastSongs.put(playCount, filesToPlay.get(0));
-			
-			filesToPlay.remove(0);
 		}
+	}
+	
+	public static void removeCurrentSong(int SongCount, boolean back){
+		
+		if (back == true){
+			
+			filesToPlay.add(pastSongs.get(SongCount));
+			pastSongs.remove(SongCount);	
+		}else{
+			pastSongs.add(filesToPlay.get(SongCount));
+			filesToPlay.remove(SongCount);
+		}
+		play(new File(filesToPlay.get(playNum)));
+		
 	}
 	public static void updateSongList(){
 		try{

@@ -1,5 +1,6 @@
 package uk.co.ElmHoe;
 
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
@@ -23,7 +24,12 @@ public class LoadingIcons {
 			try{
 				noArtwork = new ImageIcon(Main.class.getResource("/resources/noArtwork.png"));
 				Image image = noArtwork.getImage(); 
+				
+				BufferedImage noArt = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+				Graphics g = noArt.createGraphics();
+				g.drawImage(noArt, 0, 0, null);
 				Image newimg = image.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH);
+				
 				noArtwork = new ImageIcon(newimg); 
 		
 				
@@ -63,7 +69,7 @@ public class LoadingIcons {
 		}
 	}
 	
-	public static void updateIcons(boolean artwork, BufferedImage img){
+	public static boolean updateIcons(BufferedImage img){
 		if (artwork == true){
 			Image newimg = img.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH);
 			noArtwork = new ImageIcon(newimg); 

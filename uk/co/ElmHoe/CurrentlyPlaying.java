@@ -163,7 +163,7 @@ public class CurrentlyPlaying extends JFrame{
 		
 		button_Back.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
-				//Main.goBack();
+				Main.goBack();
 			}
 		});
 		button_Play.setVisible(false);
