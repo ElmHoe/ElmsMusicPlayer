@@ -4,8 +4,9 @@ import java.io.File;
 
 import javafx.scene.media.MediaPlayer;
 
+@SuppressWarnings("unused")
 public class API {
-	public static boolean databaseConnected = false;
+/*	public static boolean databaseConnected = false;
 	public static String CurrentSong(){
 		if (isPlayerPlaying() == true){
 			String title = Main.title;
@@ -31,12 +32,14 @@ public class API {
 	}
 	
 	public static void nextSong(File file){
-		/*
+		
 		 * THIS SECTION IS WHAT HAPPENS WHEN THE NEXT SONG STARTS. 
-		 */
+		 
 		Main.updateSongList();
 		
-	}
+	}*/
+	
+	//OLD API.
 	
 	
 }

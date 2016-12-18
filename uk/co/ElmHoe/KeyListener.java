@@ -1,17 +1,13 @@
 package uk.co.ElmHoe;
 
-import java.io.IOException;
-
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.UnsupportedTagException;
-
+import javafx.scene.media.MediaPlayer;
 import lc.kra.system.keyboard.GlobalKeyboardHook;
 import lc.kra.system.keyboard.event.GlobalKeyAdapter;
 import lc.kra.system.keyboard.event.GlobalKeyEvent;
 
 public class KeyListener {
     public static boolean run = true;
-	public static double volume = 50;
+	public static int oldVolume = (int)MediaPlayerAPI.vol * 100;
 
 	public static void main(String[] args) {
         GlobalKeyboardHook keyboardHook = new GlobalKeyboardHook();
@@ -19,38 +15,28 @@ public class KeyListener {
         System.out.println("Global keyboard hook successfully started, press [ins] key to shutdown.");
         keyboardHook.addKeyListener(new GlobalKeyAdapter() {
             @Override public void keyPressed(GlobalKeyEvent event) {
+            	oldVolume = (int)MediaPlayerAPI.vol * 100;
             	//System.out.println(event);
                 if(event.getVirtualKeyCode()==GlobalKeyEvent.VK_MEDIA_NEXT_TRACK){
-                	try {
-                		if (API.isPlayerPlaying() == true){
-                			Main.skip();
-                		}else{
-                			Main.playAndPause();
-                			Main.skip();
-                		}
-                		
-					} catch (UnsupportedTagException | InvalidDataException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+                	if (MediaPlayerAPI.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)){
+						MediaPlayerAPI.onSongEnd();
+					}else{
+						MediaPlayerAPI.playAndPause();
+						MediaPlayerAPI.onSongEnd();
 					}
                 }
                 if (event.getVirtualKeyCode()==GlobalKeyEvent.VK_NUMPAD4){
-                	System.out.println(Main.vol);
-                	double newVol = (int)Main.vol - 0.1;
-                	if (newVol >= 91){
-                		newVol = 100;
-                	}
-                	Main.vol(Integer.parseInt(newVol + ""));
+                	System.out.println(MediaPlayerAPI.vol * 100);
+                	oldVolume = oldVolume - 10;
+                	MediaPlayerAPI.onVolumeUpdate(oldVolume);
                 }
                 if (event.getVirtualKeyCode()==GlobalKeyEvent.VK_NUMPAD6){
-                	double newVol = (int)Main.vol + 0.1;
-                	if (newVol <= 91){
-                		newVol = 100;
-                	}
-                	Main.vol(Integer.parseInt(newVol + ""));
+                	System.out.println(MediaPlayerAPI.vol * 100);
+                	oldVolume = oldVolume + 10;
+                	MediaPlayerAPI.onVolumeUpdate(oldVolume);
                 }
                 if (event.getVirtualKeyCode()==GlobalKeyEvent.VK_NUMPAD5){
-                	Main.playAndPause();
+                	MediaPlayerAPI.playAndPause();
 
                 }
                 if (event.getVirtualKeyCode()==GlobalKeyEvent.VK_INSERT){

@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,11 +14,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-
 import javax.imageio.ImageIO;
 
 import com.mpatric.mp3agic.ID3v2;
@@ -26,7 +23,6 @@ import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
 
 import de.btobastian.javacord.entities.message.Message;
-import de.btobastian.javacord.entities.permissions.Role;
 
 public class ExtraEvents {
 	static final String sqlDriver = "com.mysql.jdbc.Driver";  
@@ -34,8 +30,9 @@ public class ExtraEvents {
 	private static String username = "java";
 	private static String password = "Catchaids98.";
 	public static java.sql.Connection conn = null;
+	private static boolean debug = true;
+	private static int debugCount = 0;
 
-	
 	public static HashMap<Integer, String> pasta = new HashMap<Integer, String>();
 		
 	public static boolean mysql(){
@@ -47,7 +44,7 @@ public class ExtraEvents {
 
 			conn = DriverManager.getConnection(sqlUrl,username,password);
 			System.out.println("Worked");
-			API.databaseConnected = true;
+			//API.databaseConnected = true;
 			return true;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -135,6 +132,33 @@ public class ExtraEvents {
 			     LoadingIcons.updateIcons(img);
 		     }catch(Exception e){
 		     }
+		}
+	}
+	
+	/*
+	 * Currently this is very basic.
+	 * Set of tools for me to debug with later down the line.
+	 * 
+	 */
+	public static void debug(String debug, Exception e){
+		if (ExtraEvents.debug == true){
+			debugCount = debugCount + 1;
+			if (!(debug == null)){
+				System.out.println(" ");
+				System.out.println("DEBUG ERR: #" + debugCount + "\n" + debug);
+				System.out.println(" ");
+			}
+			if (!(e == null)){
+				System.out.println(" ");
+				System.out.println("Exception Thrown: " + "\n" + e.getMessage());
+				System.out.println(" ");
+			}
+			try {
+				Writer.debugLog(debug, e);
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }
