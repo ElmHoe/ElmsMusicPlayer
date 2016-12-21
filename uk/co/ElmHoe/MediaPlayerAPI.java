@@ -39,7 +39,8 @@ public class MediaPlayerAPI extends JFrame{
 	private static String title;
 	private static boolean firstRun = true;
 	public static CurrentlyPlaying window = null;
-	
+	private static String appVersion = "ElmsMusicPlayer v0.3";
+	//NOTE THIS VERSION IS IN ALPHA! FLAWS WILL OCCUR
 	// THE FOLLOWING LINES ARE USED MAINLY FOR A LARGE - API.
 	// TITLES AS WELL AS OTHER PARTS MAY BE DEPENDANT ON ID3 TAGS.
 	
@@ -137,7 +138,7 @@ public class MediaPlayerAPI extends JFrame{
 			tempTitle = file.getName().replaceAll(".mp3", "").replaceAll(" - ", "\n");
 		}
 		title = tempTitle;
-		window.setTitle("Josh v0.3 ALPHA : " + title);
+		window.setTitle(appVersion + title);
 		CurrentlyPlaying.textPane.setText(title);
 		
 		
