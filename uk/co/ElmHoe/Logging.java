@@ -6,9 +6,6 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
-
-import de.btobastian.javacord.entities.message.Message;
 
 public class Logging {
 	
@@ -33,16 +30,6 @@ public class Logging {
 	}
 	public static void close(){
 		writer.close();
-	}
-	public static void Log(String user, Message message) throws InterruptedException, ExecutionException{
-		if (user.equals("222103917306052608")){
-			
-		}else{
-			ExtraEvents.logMessagesToDatabase(user, message);
-			//writer.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
-			//System.out.println("Channel: " + message.getChannelReceiver().getName() +" > ID: " + user +  " > " +Connection.api.getUserById(user).get().getName() + "> " + message.getContent().toString());
-			save();
-		}
 	}
 
 }

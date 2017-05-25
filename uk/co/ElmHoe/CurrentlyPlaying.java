@@ -53,10 +53,11 @@ public class CurrentlyPlaying extends JFrame{
 	public static JLabel lable1;
 	
 	
-	public CurrentlyPlaying(){
-		ExtraEvents.debug("\n" + "Began CurrentlyPlaying.", null);
+	public CurrentlyPlaying()
+	{
+		
 		LoadingIcons.loadIcons();
-		ExtraEvents.debug("Loading icons done.", null);
+		
 		noArtwork = LoadingIcons.noArtwork;
 		buttonBack = LoadingIcons.buttonBack;
 		buttonSkip = LoadingIcons.buttonSkip;
@@ -64,11 +65,11 @@ public class CurrentlyPlaying extends JFrame{
 		buttonPause = LoadingIcons.buttonPause;
 		bgIcon = LoadingIcons.bgIcon;
 			
-		ExtraEvents.debug("Loading background + Content Pane.", null);
+		
 		JLabel background;
 		background = new JLabel(bgIcon);
 		contentPane = background;
-		ExtraEvents.debug("Setting Visible.", null);
+		
 		this.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 380, 700);
@@ -77,20 +78,20 @@ public class CurrentlyPlaying extends JFrame{
 		textPane.setOpaque(false);
 		textPane.setEditable(false);
 
-		ExtraEvents.debug("Setting up textpane and resizable.", null);
+		
 
 		StyledDocument doc = textPane.getStyledDocument();
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
 		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
-		ExtraEvents.debug("Setting lables.", null);
+		
 		lable1 = new JLabel("");
 		lable1.setIcon(noArtwork);
 		lable1.setBounds(60, 79, 250, 250);
 		contentPane.add(lable1);
 
-		ExtraEvents.debug("Setting Visible.", null);
+		
 		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Font SFBOLD = null;
@@ -98,18 +99,21 @@ public class CurrentlyPlaying extends JFrame{
 		Font SFTHIN = null;
 		@SuppressWarnings("unused")
 		Font SFREG = null;
-		try {
+		try
+		{
 			SFBOLD = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFBOLD.ttf")).deriveFont(16f);
-			SFTHIN = Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFTHIN.ttf")).deriveFont(12f);
+			SFTHIN = Font.createFont(Font.TRUETYPE_FONT, MediaPlayerAPI.class.getResourceAsStream ("/resources/SFTHIN.ttf")).deriveFont(12f);
 			SFREG = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFREG.ttf")).deriveFont(12f);
 			
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream ("/resources/SFBOLD.ttf")));
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFTHIN.ttf")));
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, Main.class.getResourceAsStream ("/resources/SFREG.ttf")));
-		} catch (FontFormatException | IOException e1) {
+			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, MediaPlayerAPI.class.getResourceAsStream ("/resources/SFTHIN.ttf")));
+			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, MediaPlayerAPI.class.getResourceAsStream ("/resources/SFREG.ttf")));
+		}
+		catch (FontFormatException | IOException e1)
+		{
 			e1.printStackTrace();
 		}
-		ExtraEvents.debug("Setting up font for text pane.", null);
+		
 		textPane.setFont(SFBOLD);
 		
         Font font = new Font("Courier", Font.ITALIC,14);
@@ -121,7 +125,7 @@ public class CurrentlyPlaying extends JFrame{
 		textPane_2.setBackground(SystemColor.inactiveCaption);
 		textPane_2.setForeground(new Color(0, 191, 255));
 		textPane.setForeground(new Color(0, 191, 255));
-		ExtraEvents.debug("fully finished text pane setup.", null);
+		
 
 		contentPane.add(textPane);
 		contentPane.add(textPane_2);
@@ -162,21 +166,28 @@ public class CurrentlyPlaying extends JFrame{
         slider1 = new JSlider(0, 100, 50);
 
 		
-		button_Back.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent arg0){
+		button_Back.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
 				//
 			}
 		});
 		button_Play.setVisible(false);
 
 		
-		button_Pause.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (MediaPlayerAPI.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)){
+		button_Pause.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (MediaPlayerAPI.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING))
+				{
 					button_Pause.setVisible(false);
 					button_Play.setVisible(true);
 					MediaPlayerAPI.playAndPause();
-				}else{
+				}
+				else
+				{
 					button_Pause.setVisible(true);
 					button_Play.setVisible(false);
 
@@ -184,13 +195,18 @@ public class CurrentlyPlaying extends JFrame{
 			}
 		});
 		
-		button_Play.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (!(MediaPlayerAPI.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING))){
+		button_Play.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (!(MediaPlayerAPI.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)))
+				{
 					button_Pause.setVisible(true);
 					button_Play.setVisible(false);
 					MediaPlayerAPI.playAndPause();
-				}else{
+				}
+				else
+				{
 					button_Pause.setVisible(false);
 					button_Play.setVisible(true);
 
@@ -199,15 +215,21 @@ public class CurrentlyPlaying extends JFrame{
 		});
 
 		
-		button_Skip.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ExtraEvents.debug("ATTEMPTING TO SKIP.", null);
-				try {
+		button_Skip.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				
+				try
+				{
 					MediaPlayerAPI.onSongEnd();
-				}catch(Exception e1){
-					ExtraEvents.debug("An issue has occured with SKIP.", e1);
 				}
-				if (button_Pause.isVisible() == false){
+				catch(Exception e1)
+				{
+					
+				}
+				if (button_Pause.isVisible() == false)
+				{
 					button_Pause.setVisible(true);
 					button_Play.setVisible(false);
 				}
@@ -220,8 +242,10 @@ public class CurrentlyPlaying extends JFrame{
         slider.putClientProperty("Nimbus.Overrides",sliderDefaults);
         slider.putClientProperty("Nimbus.Overrides.InheritDefaults",false);
 
-        sliderDefaults.put("Slider:SliderThumb.backgroundPainter", new Painter<JComponent>() {
-            public void paint(Graphics2D g, JComponent c, int w, int h) {
+        sliderDefaults.put("Slider:SliderThumb.backgroundPainter", new Painter<JComponent>()
+        {
+            public void paint(Graphics2D g, JComponent c, int w, int h)
+            {
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g.setStroke(new BasicStroke(2f));
                 g.setColor(Color.RED);
@@ -230,8 +254,10 @@ public class CurrentlyPlaying extends JFrame{
                 g.drawOval(1, 1, w-3, h-3);
             }
         });
-        sliderDefaults.put("Slider:SliderTrack.backgroundPainter", new Painter<JComponent>() {
-            public void paint(Graphics2D g, JComponent c, int w, int h) {
+        sliderDefaults.put("Slider:SliderTrack.backgroundPainter", new Painter<JComponent>()
+        {
+            public void paint(Graphics2D g, JComponent c, int w, int h)
+            {
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g.setStroke(new BasicStroke(2f));
                 g.setColor(Color.GRAY);
@@ -241,8 +267,10 @@ public class CurrentlyPlaying extends JFrame{
             }
         });	
         slider.setBounds(10, 490, 354, 23);
-        slider.addChangeListener(new ChangeListener(){
-            public void stateChanged(ChangeEvent event) {
+        slider.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent event)
+            {
         		int newVolume = slider.getValue();
         		System.out.println("Volume updated to " + newVolume);
         		MediaPlayerAPI.onVolumeUpdate(newVolume);

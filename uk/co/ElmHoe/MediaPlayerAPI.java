@@ -39,27 +39,12 @@ public class MediaPlayerAPI extends JFrame{
 	private static String title;
 	private static boolean firstRun = true;
 	public static CurrentlyPlaying window = null;
-	private static String appVersion = "ElmsMusicPlayer v0.3";
-	//NOTE THIS VERSION IS IN ALPHA! FLAWS WILL OCCUR
-	// THE FOLLOWING LINES ARE USED MAINLY FOR A LARGE - API.
-	// TITLES AS WELL AS OTHER PARTS MAY BE DEPENDANT ON ID3 TAGS.
 	
 	public static void main(String[] args) throws IOException {
 		LoadingIcons.loadIcons();
 		JavaFXInitializer.initToolKit();
-		ExtraEvents.debug("Began Loading..." + "\n" + "LARGE DEBUG DUMP BEGINNING!", null);
-		ExtraEvents.debug("USER DIRECTORY = " + System.getProperty("user.dir"), null);
-		ExtraEvents.debug("USER LOGGED IN = " + System.getProperty("user.name"), null);
-		ExtraEvents.debug("USER OS = " + System.getProperty("os.name"), null);
-		ExtraEvents.debug("USER OS Version = " + System.getProperty("os.version"), null);
-		ExtraEvents.debug("USER OS ARCH = " + System.getProperty("os.arch"), null);
-		ExtraEvents.debug("Java Vendor = " + System.getProperty("java.vendor"), null);
-		ExtraEvents.debug("Java Version = " + System.getProperty("java.version"), null);
-		
-		
 		MediaPlayerAPI.onFirstRun();
 		MediaPlayerAPI.onVolumeUpdate(50);
-		KeyListener.main(args);
 
 	}
 	
@@ -69,12 +54,12 @@ public class MediaPlayerAPI extends JFrame{
 	 */
 	public static boolean onPlay(File file, boolean clear){
 		//This gets the file path of the mp3 file.
-		ExtraEvents.debug("onPlay has been called.", null);
+		
 		
 		String filePath = file.getAbsolutePath();
 		URI format = new File(filePath).toURI();
 		Media hit = new Media(format.toString());
-		ExtraEvents.debug("FilePath and format has been set - Media for song has been set.", null);
+		
 		
 		mediaPlayer = new MediaPlayer(hit);
 		mediaPlayer.play();
@@ -82,26 +67,26 @@ public class MediaPlayerAPI extends JFrame{
 		try {
 			updateTitle(file);
 		} catch (UnsupportedTagException | InvalidDataException | IOException e) {
-			ExtraEvents.debug("Issue with onPlay and updating Title.", e);
+			
 		}
-		ExtraEvents.debug("MediaPlayer Volume Set = song now being played.", null);
+		
 
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
 		    @Override
 		    public void run() {
 				onSongEnd();
-				ExtraEvents.debug("onPlay > onSongEnd has been called through endOfMedia", null);
+				
 
 		    }
 		});
-		ExtraEvents.debug("onPlay has finished.", null);
+		
 		return true;
 	}
 	
 	public static void onFirstRun(){
-		ExtraEvents.debug("First run has been called, checking if first time.", null);
+		
 		if (firstRun == true){
-			ExtraEvents.debug("First run == true", null);
+			
 			loadDirectories();
 			Collections.shuffle(filesToPlay);
 			window = new CurrentlyPlaying();
@@ -114,7 +99,7 @@ public class MediaPlayerAPI extends JFrame{
 		/*
 		 * This section just changes and updates Titles when a song finishes and a new song starts.
 		 */
-		ExtraEvents.debug("updateTitle has been called.", null);
+		
 		String tempTitle = "";
 		try{
 			Mp3File song = new Mp3File(file);
@@ -132,20 +117,20 @@ public class MediaPlayerAPI extends JFrame{
 				}
 			}
 		}catch(Exception e){
-			ExtraEvents.debug("Exception thrown from updateTitle", e);
+			
 		}
 		if (tempTitle == ""){
 			tempTitle = file.getName().replaceAll(".mp3", "").replaceAll(" - ", "\n");
 		}
 		title = tempTitle;
-		window.setTitle(appVersion + title);
+		window.setTitle(title.replace("\n", " By "));
 		CurrentlyPlaying.textPane.setText(title);
 		
 		
 		/*
 		 * This next section is for the up-next section below.
 		 */
-		ExtraEvents.debug("Now attempting to update up-next list", null);
+		
 		String upNext = "";
 		for (int i = 1; i < 7; i++){
 			try{
@@ -153,7 +138,7 @@ public class MediaPlayerAPI extends JFrame{
 				File f = new File(songFile);
 				upNext = upNext + f.getName().replaceAll(".mp3", "") + "\n";
 			}catch(Exception e){
-				ExtraEvents.debug("Error has occured when updating up-next.", e);
+				
 			}
 		}
 		CurrentlyPlaying.textPane_2.setText(upNext);
@@ -196,7 +181,7 @@ public class MediaPlayerAPI extends JFrame{
 		 * This section is when anything that the media player is playing - ends.
 		 * It'll run this section trying to clean up as much as possible and remain stable.
 		 */
-		ExtraEvents.debug("onSongEnd has been called.", null);
+		
 		filesPlayed.add(filesToPlay.get(0));
 		filesToPlay.remove(0);
 		
@@ -214,7 +199,7 @@ public class MediaPlayerAPI extends JFrame{
 		vol = (float)volume / 100;
 		if (mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING) == true){
 			mediaPlayer.setVolume(vol);
-			ExtraEvents.debug("updated volume to " + vol, null);
+			
 			return true;
 		}else{
 			return false;
@@ -227,16 +212,17 @@ public class MediaPlayerAPI extends JFrame{
 		 * This section contains the default directories to check and/or load songs from.
 		 * Also includes duplicate checking - if a song has the same value and size, it'll not load.
 		 */
-		ExtraEvents.debug("Began attempted to load directories.",null);
+		
 		ArrayList<String> Directories = new ArrayList<String>();
 		Directories.add(System.getProperty("user.dir"));
-		Directories.add("A:\\Music\\ALL Songs\\");
+		Directories.add("A:\\Music\\");
 		Directories.add("C:\\Users\\" + System.getProperty("user.name") + "\\Music\\");
+		Directories.add("A:\\Music\\Pandora\\");
 		for (int i = 0; i < Directories.size(); i++){
 			try{
 				checkDir(Directories.get(i));
 			}catch(Exception e){
-				ExtraEvents.debug("Erorr has been thrown when attempted to setup directories.", e);
+				
 			}
 		}
 	}
